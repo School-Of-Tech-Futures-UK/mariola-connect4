@@ -1,10 +1,13 @@
 // JS file for the Connect 4 game
 
 // TODO:
-// Improve UI
-// Show who's turn it is
 // Make functions pure
-// Ask Yingying about UI animation
+// Show who's turn it is
+// Get player names
+// Send winning score + name
+// Improve UI
+// Record high scores
+// Display high scores
 
 // gameState object
 const gameState = {
@@ -18,7 +21,9 @@ const gameState = {
     [null, null, null, null, null, null, null],
     [null, null, null, null, null, null, null],
     [null, null, null, null, null, null, null]
-  ]
+  ],
+  finalScore: 0,
+  winningPlayer: 'Alex'
 }
 
 // eslint-disable-next-line no-unused-vars
@@ -48,6 +53,14 @@ function takeTurn (e) {
   console.log(gameState.winner)
   if (gameState.winner != null) {
     document.getElementById('winnerMessage').innerText = `The winner is ${gameState.winner}`
+    const data = { player: gameState.winningPlayer, score: gameState.finalScore }
+    fetch('http://localhost:3000/scores', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    }).then(console.log('response received from POST request'))
   } else if (gameState.winner === null && gameState.turn === 42) {
     document.getElementById('winnerMessage').innerText = 'The winner is nobody'
   }
