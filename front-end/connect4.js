@@ -2,7 +2,6 @@
 
 // TODO:
 // Make functions pure
-// Show players' names with their colour
 // Improve UI
 // First click after reset is blank
 // Merge send and get scores
@@ -71,7 +70,7 @@ function takeTurn (e) {
     document.getElementById('winner-display').style.display = 'block'
     document.getElementById('winner-display').style.backgroundColor = 'blue'
   } else {
-    document.getElementById('currentTurn').innerText = `${gameState.player}\'s turn`
+    document.getElementById('currentTurn').innerText = `${gameState.player}'s turn`
   }
 }
 
