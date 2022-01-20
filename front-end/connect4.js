@@ -2,10 +2,11 @@
 
 // TODO:
 // Make functions pure
-// Send winning score + name
+// Show players' names with their colour
 // Improve UI
-// Record high scores
-// Display high scores
+// Save high scores
+// First click after reset is blank
+// Merge send and get scores
 
 // gameState object
 const gameState = {
@@ -21,10 +22,13 @@ const gameState = {
     [null, null, null, null, null, null, null]
   ],
   finalScore: 0,
-  winningPlayer: 'Alex',
+  winningPlayer: 'nobody',
   redPlayer: prompt('Please enter the Red Player\'s name:'),
   yellowPlayer: prompt('Please enter the Yellow Player\'s name:')
 }
+
+// document.getElementById('nameRed').innerText = 'Red Player: ' + gameState.redPlayer
+// document.getElementById('nameYellow').innerText = 'Yellow Player: ' + gameState.yellowPlayer
 
 // eslint-disable-next-line no-unused-vars
 function takeTurn (e) {
@@ -51,19 +55,25 @@ function takeTurn (e) {
   gameState.winner = checkWinner()
   console.log(gameState.winner)
   if (gameState.winner != null) {
+    document.getElementById('currentTurn').style.display = 'none'
     gameState.finalScore = 42 - gameState.turn
-    document.getElementById('winnerMessage').innerText = `The winner is ${gameState.winner}`
-    console.log('final score: ', gameState.finalScore)
-    sendScore()
-    const highScores = getHighScores()
-  } else if (gameState.winner === null && gameState.turn === 42) {
-    document.getElementById('winnerMessage').innerText = 'The winner is nobody'
-  } else {
-    if (gameState.player === 'Red') {
-      document.getElementById('currentTurn').innerText = gameState.redPlayer + '\'s Turn'
+    if (gameState.winner === 'Red') {
+      gameState.winningPlayer = gameState.redPlayer
+      document.getElementById('winner-display').style.backgroundColor = 'red'
     } else {
-      document.getElementById('currentTurn').innerText = gameState.yellowPlayer + '\'s Turn'
+      gameState.winningPlayer = gameState.yellowPlayer
+      document.getElementById('winner-display').style.backgroundColor = 'yellow'
     }
+    document.getElementById('winner-name').innerText = gameState.winningPlayer
+    document.getElementById('winner-display').style.display = 'block'
+    console.log('final score: ', gameState.finalScore)
+    sendScore().then(getHighScores)
+  } else if (gameState.winner === null && gameState.turn === 42) {
+    document.getElementById('winner-name').innerText = 'nobody'
+    document.getElementById('winner-display').style.display = 'block'
+    document.getElementById('winner-display').style.backgroundColor = 'blue'
+  } else {
+    document.getElementById('currentTurn').innerText = `${gameState.player}\'s turn`
   }
 }
 
@@ -73,27 +83,28 @@ function getLowestFreeRowInColumn (colNumber, grid) {
       return i
     }
   }
-
   return null
 }
 
 async function sendScore () {
   const data = { player: gameState.winningPlayer, score: gameState.finalScore }
-  const resp = await fetch('http://localhost:3000/scores', {
+  await fetch('http://localhost:3000/scores', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(data)
   })
-  // const json = await resp.json()
-  console.log('response received from POST request')
 }
 
 async function getHighScores () {
   const req = await fetch('http://localhost:3000/scores')
-  const json = await req.json()
-  console.log(json)
+  const scores = await req.json()
+  console.log(scores) // This is an array of {player: name, score: score} objects
+  // Show high scores
+  for (let i = 0; i < scores.length; i++) {
+    document.getElementById(`score${i + 1}`).innerText = scores[i].player + ': ' + scores[i].score
+  }
 }
 
 // eslint-disable-next-line no-unused-vars
@@ -111,11 +122,11 @@ function reset () {
 
   const columns = document.getElementsByClassName('col')
   for (let i = 0; i < columns.length; i++) {
-    columns[i].style.backgroundColor = 'transparent'
+    columns[i].style.backgroundColor = 'white'
     // columns[i].removeProperty("backgroundColor")
   }
 
-  document.getElementById('winnerMessage').innerText = ''
+  document.getElementById('winner-display').style.display = 'none'
 }
 
 function checkWinner () {

@@ -14,19 +14,12 @@
 
         <script src="./connect4.js"></script>
 
-        <p id="winnerMessage"></p>
         <p id="winner-display">The winner is <span id="winner-name"></span></p>
             
-                <button onclick="reset();" id="reset-button">Reset</button><br/>
-                <!-- <label for="playerRed">Red Player Name: </label>
-                <input type="text" id="playerRed"/><br/>
-                <label for="playerYellow">Yellow Player Name: </label>
-                <input type="text" id="playerYellow"/>
-                <button onclick="submitNames();">Submit</button> -->
-                <p id="nameRed"></p><br/>
-                <p id="nameYellow"></p><br/>
+        <p id="nameRed">Red Player: </p><br/>
+        <p id="nameYellow">Yellow Player: </p><br/>
+        <p id="currentTurn">Red's turn</p>        
 
-                <p id="currentTurn">Red Goes First</p>
             <div id="grid">
                 <div class="row">
                     <div class="col" id="row0-col0" onClick="takeTurn(event);"></div>
@@ -84,6 +77,23 @@
                 </div>
 
             </div>
-    </body>
+
+            <div id="scoreboard">
+                <h4>High Scores</h4>
+                <p id="score1"></p>
+                <p id="score2"></p>
+                <p id="score3"></p>
+                <p id="score4"></p>
+                <p id="score5"></p>
+                <p id="score6"></p>
+                <p id="score7"></p>
+                <p id="score8"></p>
+                <p id="score9"></p>
+                <p id="score10"></p>
+            </div>
+
+            <button onclick="reset();" id="reset-button">Reset</button><br/>
+    
+        </body>
 
 </html>
