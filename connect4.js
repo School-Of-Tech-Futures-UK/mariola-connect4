@@ -12,7 +12,7 @@
 // gameState object
 const gameState = {
   turn: 0,
-  player: 'red',
+  player: 'Red',
   winner: null,
   board: [
     [null, null, null, null, null, null, null],
@@ -23,7 +23,9 @@ const gameState = {
     [null, null, null, null, null, null, null]
   ],
   finalScore: 0,
-  winningPlayer: 'Alex'
+  winningPlayer: 'Alex',
+  redPlayer: prompt('Please enter the Red Player\'s name:'),
+  yellowPlayer: prompt('Please enter the Yellow Player\'s name:')
 }
 
 // eslint-disable-next-line no-unused-vars
@@ -33,26 +35,27 @@ function takeTurn (e) {
   const column = id[8]
 
   const lowestFreeRow = getLowestFreeRowInColumn(column, gameState.board)
-  // console.log(`LowestFree row: ${lowestFreeRow}`)
 
   if (lowestFreeRow !== null && gameState.winner == null && gameState.turn < 43) {
     gameState.turn++
 
-    if (gameState.player === 'red') {
-      gameState.board[lowestFreeRow][column] = 'red'
-      document.getElementById(`row${lowestFreeRow}-col${column}`).style.backgroundColor = 'red'
-      gameState.player = 'yellow'
+    if (gameState.player === 'Red') {
+      gameState.board[lowestFreeRow][column] = 'Red'
+      document.getElementById(`row${lowestFreeRow}-col${column}`).style.backgroundColor = 'Red'
+      gameState.player = 'Yellow'
     } else {
-      gameState.board[lowestFreeRow][column] = 'yellow'
-      document.getElementById(`row${lowestFreeRow}-col${column}`).style.backgroundColor = 'yellow'
-      gameState.player = 'red'
+      gameState.board[lowestFreeRow][column] = 'Yellow'
+      document.getElementById(`row${lowestFreeRow}-col${column}`).style.backgroundColor = 'Yellow'
+      gameState.player = 'Red'
     }
   }
 
   gameState.winner = checkWinner()
   console.log(gameState.winner)
   if (gameState.winner != null) {
+    gameState.finalScore = 42 - gameState.turn
     document.getElementById('winnerMessage').innerText = `The winner is ${gameState.winner}`
+    console.log('final score: ', gameState.finalScore)
     const data = { player: gameState.winningPlayer, score: gameState.finalScore }
     fetch('http://localhost:3000/scores', {
       method: 'POST',
@@ -60,15 +63,17 @@ function takeTurn (e) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(data)
-    }).then(console.log('response received from POST request'))
+    }).then(console.log('response received from POST request, score is: ', gameState.finalScore))
   } else if (gameState.winner === null && gameState.turn === 42) {
     document.getElementById('winnerMessage').innerText = 'The winner is nobody'
+  } else {
+    if (gameState.player === 'Red') {
+      document.getElementById('currentTurn').innerText = gameState.redPlayer + '\'s Turn'
+    } else {
+      document.getElementById('currentTurn').innerText = gameState.yellowPlayer + '\'s Turn'
+    }
   }
 }
-
-// function getElement (r, c) {
-//   const element = document.querySelector(`.row#${r} > .column#${c}`)
-// }
 
 function getLowestFreeRowInColumn (colNumber, grid) {
   for (let i = 5; i >= 0; i--) {
@@ -83,7 +88,7 @@ function getLowestFreeRowInColumn (colNumber, grid) {
 // eslint-disable-next-line no-unused-vars
 function reset () {
   gameState.turn = 0
-  gameState.player = 'red'
+  gameState.player = 'Red'
   gameState.board = [
     [null, null, null, null, null, null, null],
     [null, null, null, null, null, null, null],
@@ -178,4 +183,13 @@ function checkCounterDiagonals () {
     }
   }
   return null
+}
+
+function submitNames() {
+  const player1 = document.getElementById('player1').value
+  const player2 = document.getElementById('player2').value
+  document.getElementById('player1').style.visibility = 'hidden'
+  document.getElementById('player1').style.visibility = 'hidden'
+  document.getElementById('name1').innerText = player1
+  document.getElementById('name2').innerText = player2
 }
