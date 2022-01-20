@@ -48,9 +48,9 @@ body {
 }
 
 #nameRed {
-    background-color: red;
+    color: red;
 }
 
 #nameYellow {
-    background-color: yellow;
+    color: rgb(255, 204, 0);
 }

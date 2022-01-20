@@ -27,4 +27,13 @@ async function trysave (scores) {
   await fs.writeFile('./highscores.json', contents)
 }
 
-trysave(scores)
+async function tryload () {
+  const contents = await fs.readFile('./highscores.json', 'utf-8')
+  const data = await JSON.parse(contents)
+  console.log(data)
+  return data
+}
+
+const x = tryload()
+
+// console.log(x)

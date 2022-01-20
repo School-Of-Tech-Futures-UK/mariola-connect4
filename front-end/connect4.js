@@ -4,7 +4,6 @@
 // Make functions pure
 // Show players' names with their colour
 // Improve UI
-// Save high scores
 // First click after reset is blank
 // Merge send and get scores
 
@@ -23,19 +22,16 @@ const gameState = {
   ],
   finalScore: 0,
   winningPlayer: 'nobody',
-  redPlayer: prompt('Please enter the Red Player\'s name:'),
-  yellowPlayer: prompt('Please enter the Yellow Player\'s name:')
+  // redPlayer: prompt('Please enter the Red Player\'s name:'),
+  // yellowPlayer: prompt('Please enter the Yellow Player\'s name:')
+  redPlayer: null,
+  yellowPlayer: null
 }
-
-// document.getElementById('nameRed').innerText = 'Red Player: ' + gameState.redPlayer
-// document.getElementById('nameYellow').innerText = 'Yellow Player: ' + gameState.yellowPlayer
 
 // eslint-disable-next-line no-unused-vars
 function takeTurn (e) {
   const id = e.target.id
-  //   const row = id[3] // don't think I need this
   const column = id[8]
-
   const lowestFreeRow = getLowestFreeRowInColumn(column, gameState.board)
 
   if (lowestFreeRow !== null && gameState.winner == null && gameState.turn < 43) {
@@ -58,9 +54,11 @@ function takeTurn (e) {
     document.getElementById('currentTurn').style.display = 'none'
     gameState.finalScore = 42 - gameState.turn
     if (gameState.winner === 'Red') {
+      gameState.redPlayer = document.getElementById('red-input').value
       gameState.winningPlayer = gameState.redPlayer
       document.getElementById('winner-display').style.backgroundColor = 'red'
     } else {
+      gameState.yellowPlayer = document.getElementById('yellow-input').value
       gameState.winningPlayer = gameState.yellowPlayer
       document.getElementById('winner-display').style.backgroundColor = 'yellow'
     }
@@ -102,6 +100,8 @@ async function getHighScores () {
   const scores = await req.json()
   console.log(scores) // This is an array of {player: name, score: score} objects
   // Show high scores
+  document.getElementById('scoreboard').classList.remove('invisible')
+  document.getElementById('scoreboard').classList.add('visible')
   for (let i = 0; i < scores.length; i++) {
     document.getElementById(`score${i + 1}`).innerText = scores[i].player + ': ' + scores[i].score
   }
@@ -127,6 +127,9 @@ function reset () {
   }
 
   document.getElementById('winner-display').style.display = 'none'
+  document.getElementById('scoreboard').classList.remove('visible')
+  document.getElementById('scoreboard').classList.add('invisible')
+  document.getElementById('currentTurn').style.display = 'block'
 }
 
 function checkWinner () {

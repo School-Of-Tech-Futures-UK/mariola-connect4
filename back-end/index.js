@@ -7,10 +7,12 @@ const app = express()
 app.use(express.json())
 app.use(cors())
 
+let scores
+
 async function loadScores () {
   const contents = await fs.readFile('./highscores.json', 'utf-8')
   const data = JSON.parse(contents)
-  return data
+  scores = data
 }
 
 async function saveScores (scores) {
@@ -18,7 +20,7 @@ async function saveScores (scores) {
   await fs.writeFile('./highscores.json', contents)
 }
 
-let scores = loadScores()
+loadScores()
 
 app.post('/scores', (req, res) => {
   const data = req.body
@@ -26,7 +28,6 @@ app.post('/scores', (req, res) => {
   scores.sort((a, b) => {
     return b.score - a.score
   })
-  console.log('The current high scores: ', scores)
   saveScores(scores)
   res.send('')
 })
