@@ -1,3 +1,53 @@
+.column {
+    width: 50px;
+    height: 50px;
+    margin: 1px;
+    border: 2px darkblue solid;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 25px;
+    border-radius: 50%;
+    background-color: white;
+}
+
+.row {
+    height: 325px;
+    margin: 0px auto;
+    display: flex;
+    justify-content: center;
+}
+
+.grid {
+    width: 400px;
+    height: 330px;
+    display: flex;
+    border: 2px darkblue solid;
+    margin: 1px;
+    background-color: darkblue;
+    flex-direction: row;
+    align-items: center;
+}
+
+.marker {
+    width: 80px;
+    height: 80px;
+}
+
+/* #winner-display {
+    display: none;
+    background-color: blue;
+    color: white;
+    width: 400px;
+} */
+
+body {
+    text-align: center;
+}
+
+
+/* old stuff */
+
 .col {
     /* width: 20px; */
     height: 50px;
@@ -33,6 +83,7 @@
 
 .childFlex1 {
     flex-grow: 0.25;
+    justify-content: flex-start;
 }
 
 .childFlex2 {
