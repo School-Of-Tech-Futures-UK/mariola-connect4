@@ -2,8 +2,6 @@
 
 // TODO:
 // Make functions pure
-// Show who's turn it is
-// Get player names
 // Send winning score + name
 // Improve UI
 // Record high scores
@@ -183,13 +181,4 @@ function checkCounterDiagonals () {
     }
   }
   return null
-}
-
-function submitNames() {
-  const player1 = document.getElementById('player1').value
-  const player2 = document.getElementById('player2').value
-  document.getElementById('player1').style.visibility = 'hidden'
-  document.getElementById('player1').style.visibility = 'hidden'
-  document.getElementById('name1').innerText = player1
-  document.getElementById('name2').innerText = player2
 }
