@@ -54,14 +54,8 @@ function takeTurn (e) {
     gameState.finalScore = 42 - gameState.turn
     document.getElementById('winnerMessage').innerText = `The winner is ${gameState.winner}`
     console.log('final score: ', gameState.finalScore)
-    const data = { player: gameState.winningPlayer, score: gameState.finalScore }
-    fetch('http://localhost:3000/scores', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    }).then(console.log('response received from POST request, score is: ', gameState.finalScore))
+    sendScore()
+    const highScores = getHighScores()
   } else if (gameState.winner === null && gameState.turn === 42) {
     document.getElementById('winnerMessage').innerText = 'The winner is nobody'
   } else {
@@ -81,6 +75,25 @@ function getLowestFreeRowInColumn (colNumber, grid) {
   }
 
   return null
+}
+
+async function sendScore () {
+  const data = { player: gameState.winningPlayer, score: gameState.finalScore }
+  const resp = await fetch('http://localhost:3000/scores', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  })
+  // const json = await resp.json()
+  console.log('response received from POST request')
+}
+
+async function getHighScores () {
+  const req = await fetch('http://localhost:3000/scores')
+  const json = await req.json()
+  console.log(json)
 }
 
 // eslint-disable-next-line no-unused-vars
