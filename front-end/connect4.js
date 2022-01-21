@@ -1,31 +1,10 @@
-// JS file for the Connect 4 game
+// Functions used by game-state.js to implement connect4
 
 // TODO:
 // Make functions pure
 // Improve UI
 // First click after reset is blank
 // Merge send and get scores
-
-// gameState object
-const gameState = {
-  turn: 0,
-  player: 'Red',
-  winner: null,
-  board: [
-    [null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null]
-  ],
-  finalScore: 0,
-  winningPlayer: 'nobody',
-  // redPlayer: prompt('Please enter the Red Player\'s name:'),
-  // yellowPlayer: prompt('Please enter the Yellow Player\'s name:')
-  redPlayer: null,
-  yellowPlayer: null
-}
 
 // eslint-disable-next-line no-unused-vars
 function takeTurn (e) {
