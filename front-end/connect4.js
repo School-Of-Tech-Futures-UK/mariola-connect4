@@ -2,9 +2,10 @@
 
 // TODO:
 // Make functions pure
-// Improve UI
+// Improve UI (gradient colour board? place elements horizontally)
 // First click after reset is blank
 // Merge send and get scores
+// Have to add scores by same players?
 
 // gameState object
 const gameState = {
