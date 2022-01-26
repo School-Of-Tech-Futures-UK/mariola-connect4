@@ -2,55 +2,90 @@
 
 // TODO:
 // Make functions pure
+//    Break down code into smaller functions
+//    Look for parts of the code that are repeated (those could be a separate function)
+// Separate UI logic (make a drawBoard function, display high scores, hide high scores)
 // Improve UI
-// First click after reset is blank
 // Merge send and get scores
+
+// gameState object
+let gameState = {
+  turn: 0,
+  player: 'Red',
+  winner: null,
+  board: [
+    [null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null]
+  ],
+  finalScore: 0,
+  winningPlayer: 'nobody',
+  redPlayerName: null,
+  yellowPlayerName: null
+}
 
 // eslint-disable-next-line no-unused-vars
 function takeTurn (e) {
+  gameState = makeMove(e, gameState)
+}
+
+// eslint-disable-next-line no-unused-vars
+function resetGame () {
+  gameState = reset(gameState)
+}
+
+// Change this to return a new state
+function makeMove (e, state) {
+  const newState = JSON.parse(JSON.stringify(state))
+
   const id = e.target.id
   const column = id[8]
-  const lowestFreeRow = getLowestFreeRowInColumn(column, gameState.board)
+  const lowestFreeRow = getLowestFreeRowInColumn(column, newState.board)
 
-  if (lowestFreeRow !== null && gameState.winner == null && gameState.turn < 43) {
-    gameState.turn++
+  if (lowestFreeRow !== null && newState.winner == null && newState.turn < 43) {
+    newState.turn++
 
-    if (gameState.player === 'Red') {
-      gameState.board[lowestFreeRow][column] = 'Red'
+    if (newState.player === 'Red') {
+      newState.board[lowestFreeRow][column] = 'Red'
       document.getElementById(`row${lowestFreeRow}-col${column}`).style.backgroundColor = 'Red'
-      gameState.player = 'Yellow'
+      newState.player = 'Yellow'
     } else {
-      gameState.board[lowestFreeRow][column] = 'Yellow'
+      newState.board[lowestFreeRow][column] = 'Yellow'
       document.getElementById(`row${lowestFreeRow}-col${column}`).style.backgroundColor = 'Yellow'
-      gameState.player = 'Red'
+      newState.player = 'Red'
     }
   }
 
-  gameState.winner = checkWinner()
-  console.log(gameState.winner)
-  if (gameState.winner != null) {
+  newState.winner = checkWinner(newState)
+  console.log(newState.winner)
+  if (newState.winner != null) {
     document.getElementById('currentTurn').style.display = 'none'
-    gameState.finalScore = 42 - gameState.turn
-    if (gameState.winner === 'Red') {
-      gameState.redPlayer = document.getElementById('red-input').value
-      gameState.winningPlayer = gameState.redPlayer
+    newState.finalScore = 42 - newState.turn
+    if (newState.winner === 'Red') {
+      newState.redPlayerName = document.getElementById('red-input').value
+      newState.winningPlayer = newState.redPlayerName
       document.getElementById('winner-display').style.backgroundColor = 'red'
     } else {
-      gameState.yellowPlayer = document.getElementById('yellow-input').value
-      gameState.winningPlayer = gameState.yellowPlayer
+      newState.yellowPlayerName = document.getElementById('yellow-input').value
+      newState.winningPlayer = newState.yellowPlayerName
       document.getElementById('winner-display').style.backgroundColor = 'yellow'
     }
-    document.getElementById('winner-name').innerText = gameState.winningPlayer
+    document.getElementById('winner-name').innerText = newState.winningPlayer
     document.getElementById('winner-display').style.display = 'block'
-    console.log('final score: ', gameState.finalScore)
+    console.log('final score: ', newState.finalScore)
     sendScore().then(getHighScores)
-  } else if (gameState.winner === null && gameState.turn === 42) {
+  } else if (newState.winner === null && newState.turn === 42) {
     document.getElementById('winner-name').innerText = 'nobody'
     document.getElementById('winner-display').style.display = 'block'
     document.getElementById('winner-display').style.backgroundColor = 'blue'
   } else {
-    document.getElementById('currentTurn').innerText = `${gameState.player}'s turn`
+    document.getElementById('currentTurn').innerText = `${newState.player}'s turn`
   }
+
+  return newState
 }
 
 function getLowestFreeRowInColumn (colNumber, grid) {
@@ -63,7 +98,7 @@ function getLowestFreeRowInColumn (colNumber, grid) {
 }
 
 async function sendScore () {
-  const data = { player: gameState.winningPlayer, score: gameState.finalScore }
+  const data = { player: state.winningPlayer, score: state.finalScore }
   await fetch('http://localhost:3000/scores', {
     method: 'POST',
     headers: {
@@ -86,10 +121,12 @@ async function getHighScores () {
 }
 
 // eslint-disable-next-line no-unused-vars
-function reset () {
-  gameState.turn = 0
-  gameState.player = 'Red'
-  gameState.board = [
+function reset (state) {
+  const newState = JSON.parse(JSON.stringify(state))
+
+  newState.turn = 0
+  newState.player = 'Red'
+  newState.board = [
     [null, null, null, null, null, null, null],
     [null, null, null, null, null, null, null],
     [null, null, null, null, null, null, null],
@@ -97,6 +134,9 @@ function reset () {
     [null, null, null, null, null, null, null],
     [null, null, null, null, null, null, null]
   ]
+  newState.winner = null
+  newState.finalScore = 0
+  newState.winningPlayer = 'nobody'
 
   const columns = document.getElementsByClassName('col')
   for (let i = 0; i < columns.length; i++) {
@@ -108,13 +148,15 @@ function reset () {
   document.getElementById('scoreboard').classList.remove('visible')
   document.getElementById('scoreboard').classList.add('invisible')
   document.getElementById('currentTurn').style.display = 'block'
+
+  return newState
 }
 
-function checkWinner () {
-  const rowWin = checkRows()
-  const columnWin = checkColumns()
-  const diagWin = checkDiagonals()
-  const counterDiagWin = checkCounterDiagonals()
+function checkWinner (state) {
+  const rowWin = checkRows(state)
+  const columnWin = checkColumns(state)
+  const diagWin = checkDiagonals(state)
+  const counterDiagWin = checkCounterDiagonals(state)
   if (rowWin != null) {
     return rowWin
   } else if (columnWin != null) {
@@ -128,14 +170,14 @@ function checkWinner () {
   }
 }
 
-function checkRows () {
+function checkRows (state) {
   for (let i = 0; i < 6; i++) {
     for (let j = 0; j < 7; j++) {
-      if (gameState.board[i][j] != null) {
-        if (gameState.board[i][j] === gameState.board[i][j + 1] &&
-                    gameState.board[i][j] === gameState.board[i][j + 2] &&
-                    gameState.board[i][j] === gameState.board[i][j + 3]) {
-          return gameState.board[i][j]
+      if (state.board[i][j] != null) {
+        if (state.board[i][j] === state.board[i][j + 1] &&
+                    state.board[i][j] === state.board[i][j + 2] &&
+                    state.board[i][j] === state.board[i][j + 3]) {
+          return state.board[i][j]
         }
       }
     }
@@ -143,14 +185,14 @@ function checkRows () {
   return null
 }
 
-function checkColumns () {
+function checkColumns (state) {
   for (let i = 0; i < 7; i++) {
     for (let j = 0; j < 6; j++) {
-      if (gameState.board[j][i] != null) {
-        if (gameState.board[j][i] === gameState.board[j - 1][i] &&
-                    gameState.board[j][i] === gameState.board[j - 2][i] &&
-                    gameState.board[j][i] === gameState.board[j - 3][i]) {
-          return gameState.board[j][i]
+      if (state.board[j][i] != null) {
+        if (state.board[j][i] === state.board[j - 1][i] &&
+                    state.board[j][i] === state.board[j - 2][i] &&
+                    state.board[j][i] === state.board[j - 3][i]) {
+          return state.board[j][i]
         }
       }
     }
@@ -158,14 +200,14 @@ function checkColumns () {
   return null
 }
 
-function checkDiagonals () {
+function checkDiagonals (state) {
   for (let i = 0; i < 6; i++) {
     for (let j = 0; j < 7; j++) {
-      if (gameState.board[i][j] != null) {
-        if (gameState.board[i][j] === gameState.board[i - 1][j + 1] &&
-                      gameState.board[i][j] === gameState.board[i - 2][j + 2] &&
-                      gameState.board[i][j] === gameState.board[i - 3][j + 3]) {
-          return gameState.board[i][j]
+      if (state.board[i][j] != null) {
+        if (state.board[i][j] === state.board[i - 1][j + 1] &&
+                      state.board[i][j] === state.board[i - 2][j + 2] &&
+                      state.board[i][j] === state.board[i - 3][j + 3]) {
+          return state.board[i][j]
         }
       }
     }
@@ -173,14 +215,14 @@ function checkDiagonals () {
   return null
 }
 
-function checkCounterDiagonals () {
+function checkCounterDiagonals (state) {
   for (let i = 0; i < 6; i++) {
     for (let j = 0; j < 7; j++) {
-      if (gameState.board[i][j] != null) {
-        if (gameState.board[i][j] === gameState.board[i - 1][j - 1] &&
-                        gameState.board[i][j] === gameState.board[i - 2][j - 2] &&
-                        gameState.board[i][j] === gameState.board[i - 3][j - 3]) {
-          return gameState.board[i][j]
+      if (state.board[i][j] != null) {
+        if (state.board[i][j] === state.board[i - 1][j - 1] &&
+                        state.board[i][j] === state.board[i - 2][j - 2] &&
+                        state.board[i][j] === state.board[i - 3][j - 3]) {
+          return state.board[i][j]
         }
       }
     }
