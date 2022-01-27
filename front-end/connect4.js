@@ -1,10 +1,11 @@
 // Functions used by game-state.js to implement connect4
 
 // TODO:
-// Check if all functions are pure
 // Improve UI (gradient colour board? place elements horizontally)
 // Merge send and get scores
 // Have to add scores by same players?
+
+module.exports = { takeTurn, checkWinner }
 
 // ------------------------ DIRTY LAYER ------------------------
 
@@ -29,10 +30,24 @@ let gameState = {
   highScores: []
 }
 
-// takeTurn is called every time a user clicks on the board
+// gridClick is called every time a user clicks on the board
 // eslint-disable-next-line no-unused-vars
-async function takeTurn (e) {
-  gameState = await makeMove(e, gameState)
+async function gridClick (e) {
+  gameState = await takeTurn(e, gameState)
+
+  if (gameState.winner != null) { // i.e. someone has won
+    if (gameState.winner === 'Red') {
+      gameState.redPlayerName = document.getElementById('red-input').value
+      gameState.winningPlayer = gameState.redPlayerName
+      gameState.winningColour = 'Red'
+    } else if (gameState.winner === 'Yellow') {
+      gameState.yellowPlayerName = document.getElementById('yellow-input').value
+      gameState.winningPlayer = gameState.yellowPlayerName
+      gameState.winningColour = 'Yellow'
+    }
+    await sendScore(gameState)
+    gameState.highScores = await getHighScores()
+  }
   drawBoard(gameState)
 }
 
@@ -65,7 +80,7 @@ async function getHighScores () {
 
 // ------------------------ PURE FUNCTIONS ------------------------
 
-async function makeMove (e, state) {
+async function takeTurn (e, state) {
   const newState = JSON.parse(JSON.stringify(state))
 
   const id = e.target.id
@@ -85,21 +100,8 @@ async function makeMove (e, state) {
   }
 
   newState.winner = checkWinner(newState)
-  if (newState.winner === null) {
-    displayTurn(newState.player)
-  } else {
+  if (newState.winner != null) {
     newState.finalScore = 42 - newState.turn
-    if (newState.winner === 'Red') {
-      newState.redPlayerName = document.getElementById('red-input').value
-      newState.winningPlayer = newState.redPlayerName
-      newState.winningColour = 'Red'
-    } else if (newState.winner === 'Yellow') {
-      newState.yellowPlayerName = document.getElementById('yellow-input').value
-      newState.winningPlayer = newState.yellowPlayerName
-      newState.winningColour = 'Yellow'
-    }
-    await sendScore(newState)
-    newState.highScores = await getHighScores()
   }
   return newState
 }
@@ -135,7 +137,6 @@ function reset (state) {
   return newState
 }
 
-// PURE ✔️
 function checkWinner (state) {
   const rowWin = checkRows(state)
   const columnWin = checkColumns(state)
