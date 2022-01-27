@@ -4,7 +4,7 @@
 // Make functions pure
 //    Break down code into smaller functions
 //    Look for parts of the code that are repeated (those could be a separate function)
-// Separate UI logic (make a drawBoard function, display high scores, hide high scores)
+// Add winning colour to state
 // Improve UI
 // Merge send and get scores
 
@@ -25,20 +25,23 @@ let gameState = {
   ],
   finalScore: 0,
   winningPlayer: 'nobody',
+  winningColour: null,
   redPlayerName: null,
-  yellowPlayerName: null
+  yellowPlayerName: null,
+  highScores: []
 }
 
-// eslint-disable-next-line no-unused-vars
 // takeTurn is called every time a user clicks on the board
+// eslint-disable-next-line no-unused-vars
 function takeTurn (e) {
   gameState = makeMove(e, gameState)
-  drawBoard()
+  drawBoard(gameState)
 }
 
 // eslint-disable-next-line no-unused-vars
 function resetGame () {
   gameState = reset(gameState)
+  clearBoard()
 }
 
 // ------------------------ PURE FUNCTIONS ------------------------
@@ -64,21 +67,24 @@ function makeMove (e, state) {
 
   newState.winner = checkWinner(newState)
   console.log(newState.winner)
-  if (newState.winner != null) {
+  if (newState.winner === null) {
+    displayTurn(newState.player)
+  } else {
     newState.finalScore = 42 - newState.turn
     if (newState.winner === 'Red') {
       newState.redPlayerName = document.getElementById('red-input').value
       newState.winningPlayer = newState.redPlayerName
+      newState.winningColour = 'Red'
     } else if (newState.winner === 'Yellow') {
       newState.yellowPlayerName = document.getElementById('yellow-input').value
       newState.winningPlayer = newState.yellowPlayerName
-    } else if (newState.winner === null && newState.turn === 42) {
-      newState.winner = 'nobody'
+      newState.winningColour = 'Yellow'
     }
     console.log('final score: ', newState.finalScore)
-    sendScore().then(getHighScores)
-  } else {
-    displayTurn(newState.player)
+    sendScore(newState).then(async () => {
+      newState.highScores = await getHighScores()
+    })
+    console.log('high scores from makeMove(): ', newState.highScores)
   }
   return newState
 }
@@ -92,8 +98,11 @@ function getLowestFreeRowInColumn (colNumber, grid) {
   return null
 }
 
-async function sendScore () {
-  const data = { player: state.winningPlayer, score: state.finalScore }
+async function sendScore (state) {
+  if (state.winner === 'nobody') {
+    return
+  }
+  const data = { player: state.winningPlayer, score: state.finalScore, colour: state.winningColour }
   await fetch('http://localhost:3000/scores', {
     method: 'POST',
     headers: {
@@ -105,14 +114,9 @@ async function sendScore () {
 
 async function getHighScores () {
   const req = await fetch('http://localhost:3000/scores')
-  const scores = await req.json()
-  console.log(scores) // This is an array of {player: name, score: score} objects
-  // Show high scores
-  document.getElementById('scoreboard').classList.remove('invisible')
-  document.getElementById('scoreboard').classList.add('visible')
-  for (let i = 0; i < scores.length; i++) {
-    document.getElementById(`score${i + 1}`).innerText = scores[i].player + ': ' + scores[i].score
-  }
+  const scores = await req.json() // This is an array of {player: name, score: , colour: } objects
+  // console.log(scores)
+  return scores
 }
 
 // eslint-disable-next-line no-unused-vars
@@ -132,17 +136,7 @@ function reset (state) {
   newState.winner = null
   newState.finalScore = 0
   newState.winningPlayer = 'nobody'
-
-  const columns = document.getElementsByClassName('col')
-  for (let i = 0; i < columns.length; i++) {
-    columns[i].style.backgroundColor = 'white'
-    // columns[i].removeProperty("backgroundColor")
-  }
-
-  document.getElementById('winner-display').style.display = 'none'
-  document.getElementById('scoreboard').classList.remove('visible')
-  document.getElementById('scoreboard').classList.add('invisible')
-  document.getElementById('currentTurn').style.display = 'block'
+  newState.winningColour = null
 
   return newState
 }
@@ -227,7 +221,7 @@ function checkCounterDiagonals (state) {
   return null
 }
 
-// UI-related functions
+// ------------------------ UI FUNCTIONS ------------------------
 
 // Could use getElementsByClass('col').forEach()
 function drawBoard (state) {
@@ -237,33 +231,49 @@ function drawBoard (state) {
         continue
       }
       const cellColour = state.board[rowIndex][columnIndex] === 'Red' ? 'red' : 'yellow'
-      document.getElementById(`row${rowIndex}-column${columnIndex}`).innerText = cellColour
+      document.getElementById(`row${rowIndex}-col${columnIndex}`).style.backgroundColor = cellColour
     }
   }
 
-  if (state.winner != null) {
-    displayScores()
+  if (state.winner === null) {
+    displayTurn(state.player)
+  } else {
+    displayWinner(state)
+    displayScores(state)
   }
 }
 
-function clearBoard() {
+function clearBoard () {
   for (let rowIndex = 0; rowIndex < 6; rowIndex++) {
     for (let columnIndex = 0; columnIndex < 7; columnIndex++) {
       document.getElementById(`row${rowIndex}-col${columnIndex}`).style.backgroundColor = 'white'
     }
   }
+  document.getElementById('winner-display').style.display = 'none'
+  document.getElementById('scoreboard').classList.remove('visible')
+  document.getElementById('scoreboard').classList.add('invisible')
+  document.getElementById('currentTurn').style.display = 'block'
 }
 
-function displayScores (state) {
-  // Must:
-  // - hide #currentTurn
-  // - show winner banner
-  // - colour winner banner according to winner
-  // - fill winner name
-  // - show scoreboard
+function displayWinner (state) {
   document.getElementById('currentTurn').style.display = 'none'
   document.getElementById('winner-name').innerText = state.winningPlayer
   document.getElementById('winner-display').style.display = 'block'
+  if (state.winningColour === 'Red') {
+    document.getElementById('winner-display').style.backgroundColor = 'rgba(255, 0, 0, 0.3)'
+  } else {
+    document.getElementById('winner-display').style.backgroundColor = 'rgba(255, 204, 0, 0.3)'
+  }
+}
+
+function displayScores (state) {
+  document.getElementById('scoreboard').classList.remove('invisible')
+  document.getElementById('scoreboard').classList.add('visible')
+  console.log('The high scores from displayScores() function', state.highScores)
+  for (let i = 0; i < state.highScores.length; i++) {
+    console.log('in scoreboard for loop')
+    document.getElementById(`score${i + 1}`).innerText = state.highScores[i].player + ' (' + state.highScores[i].colour + '): ' + state.highScores[i].score
+  }
 }
 
 function displayTurn (player) {
