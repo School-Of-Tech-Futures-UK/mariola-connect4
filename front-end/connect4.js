@@ -8,6 +8,8 @@
 // Improve UI
 // Merge send and get scores
 
+// ------------------------ DIRTY LAYER ------------------------
+
 // gameState object
 let gameState = {
   turn: 0,
@@ -28,8 +30,10 @@ let gameState = {
 }
 
 // eslint-disable-next-line no-unused-vars
+// takeTurn is called every time a user clicks on the board
 function takeTurn (e) {
   gameState = makeMove(e, gameState)
+  drawBoard()
 }
 
 // eslint-disable-next-line no-unused-vars
@@ -37,7 +41,8 @@ function resetGame () {
   gameState = reset(gameState)
 }
 
-// Change this to return a new state
+// ------------------------ PURE FUNCTIONS ------------------------
+
 function makeMove (e, state) {
   const newState = JSON.parse(JSON.stringify(state))
 
@@ -50,11 +55,9 @@ function makeMove (e, state) {
 
     if (newState.player === 'Red') {
       newState.board[lowestFreeRow][column] = 'Red'
-      document.getElementById(`row${lowestFreeRow}-col${column}`).style.backgroundColor = 'Red'
       newState.player = 'Yellow'
     } else {
       newState.board[lowestFreeRow][column] = 'Yellow'
-      document.getElementById(`row${lowestFreeRow}-col${column}`).style.backgroundColor = 'Yellow'
       newState.player = 'Red'
     }
   }
@@ -62,29 +65,21 @@ function makeMove (e, state) {
   newState.winner = checkWinner(newState)
   console.log(newState.winner)
   if (newState.winner != null) {
-    document.getElementById('currentTurn').style.display = 'none'
     newState.finalScore = 42 - newState.turn
     if (newState.winner === 'Red') {
       newState.redPlayerName = document.getElementById('red-input').value
       newState.winningPlayer = newState.redPlayerName
-      document.getElementById('winner-display').style.backgroundColor = 'red'
-    } else {
+    } else if (newState.winner === 'Yellow') {
       newState.yellowPlayerName = document.getElementById('yellow-input').value
       newState.winningPlayer = newState.yellowPlayerName
-      document.getElementById('winner-display').style.backgroundColor = 'yellow'
+    } else if (newState.winner === null && newState.turn === 42) {
+      newState.winner = 'nobody'
     }
-    document.getElementById('winner-name').innerText = newState.winningPlayer
-    document.getElementById('winner-display').style.display = 'block'
     console.log('final score: ', newState.finalScore)
     sendScore().then(getHighScores)
-  } else if (newState.winner === null && newState.turn === 42) {
-    document.getElementById('winner-name').innerText = 'nobody'
-    document.getElementById('winner-display').style.display = 'block'
-    document.getElementById('winner-display').style.backgroundColor = 'blue'
   } else {
-    document.getElementById('currentTurn').innerText = `${newState.player}'s turn`
+    displayTurn(newState.player)
   }
-
   return newState
 }
 
@@ -165,6 +160,8 @@ function checkWinner (state) {
     return diagWin
   } else if (counterDiagWin != null) {
     return counterDiagWin
+  } else if (state.turn === 42) {
+    return 'nobody'
   } else {
     return null
   }
@@ -228,4 +225,47 @@ function checkCounterDiagonals (state) {
     }
   }
   return null
+}
+
+// UI-related functions
+
+// Could use getElementsByClass('col').forEach()
+function drawBoard (state) {
+  for (let rowIndex = 0; rowIndex < 6; rowIndex++) {
+    for (let columnIndex = 0; columnIndex < 7; columnIndex++) {
+      if (!state.board[rowIndex][columnIndex]) {
+        continue
+      }
+      const cellColour = state.board[rowIndex][columnIndex] === 'Red' ? 'red' : 'yellow'
+      document.getElementById(`row${rowIndex}-column${columnIndex}`).innerText = cellColour
+    }
+  }
+
+  if (state.winner != null) {
+    displayScores()
+  }
+}
+
+function clearBoard() {
+  for (let rowIndex = 0; rowIndex < 6; rowIndex++) {
+    for (let columnIndex = 0; columnIndex < 7; columnIndex++) {
+      document.getElementById(`row${rowIndex}-col${columnIndex}`).style.backgroundColor = 'white'
+    }
+  }
+}
+
+function displayScores (state) {
+  // Must:
+  // - hide #currentTurn
+  // - show winner banner
+  // - colour winner banner according to winner
+  // - fill winner name
+  // - show scoreboard
+  document.getElementById('currentTurn').style.display = 'none'
+  document.getElementById('winner-name').innerText = state.winningPlayer
+  document.getElementById('winner-display').style.display = 'block'
+}
+
+function displayTurn (player) {
+  document.getElementById('currentTurn').innerText = `${player}'s turn`
 }
