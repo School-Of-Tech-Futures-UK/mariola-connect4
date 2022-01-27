@@ -1,24 +1,27 @@
 const connect4 = require('./connect4.js')
 
-// Change this to be initialState and do a beforeEach gameState = initialState
-const gameState = {
-  turn: 0,
-  player: 'Red',
-  winner: null,
-  board: [
-    [null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null]
-  ],
-  finalScore: 0,
-  winningPlayer: 'nobody',
-  redPlayerName: null,
-  yellowPlayerName: null,
-  highScores: []
-}
+let gameState
+
+beforeEach(() => {
+  gameState = {
+    turn: 0,
+    player: 'Red',
+    winner: null,
+    board: [
+      [null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null]
+    ],
+    finalScore: 0,
+    winningPlayer: 'nobody',
+    redPlayerName: null,
+    yellowPlayerName: null,
+    highScores: []
+  }
+})
 
 describe ('When calling the checkWinner function', () => {
   const wins = [
@@ -117,5 +120,34 @@ describe ('When calling the checkWinner function', () => {
 
 describe ('When calling takeTurn function', () => {
   // Have to test when a piece can be placed and when it can't (i.e. the column is full)
-  
+
+  test('When there is space in a column, the piece falls in the lowest available spot in that column', () => {
+    // Arrange
+    gameState.player = 'Yellow'
+    gameState.turn = 4
+    gameState.board = [
+      [null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null],
+      ['Red', 'Yellow', 'Red', 'Yellow', null, null, null]
+    ]
+    const e = {
+      target: { id: 'row4-col2' }
+    }
+
+    // Act
+    const actualOutput = connect4.takeTurn(e, gameState)
+
+    // Assert
+    const expectedOutput = {
+      ...gameState
+    }
+    expectedOutput.board[4][2] = 'Yellow'
+    expectedOutput.turn++
+    expectedOutput.player = 'Red'
+
+    expect(actualOutput).toMatchObject(expectedOutput)
+  })
 })
