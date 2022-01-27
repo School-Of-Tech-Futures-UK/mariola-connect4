@@ -1,9 +1,8 @@
 // JS file for the Connect 4 game
 
 // TODO:
-// Make functions pure
+// Check if all functions are pure
 // Improve UI (gradient colour board? place elements horizontally)
-// First click after reset is blank
 // Merge send and get scores
 // Have to add scores by same players?
 
