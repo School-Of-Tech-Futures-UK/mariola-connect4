@@ -5,7 +5,7 @@
 // Merge send and get scores
 // Have to add scores by same players?
 
-module.exports = { takeTurn, checkWinner }
+// module.exports = { takeTurn, checkWinner }
 
 // ------------------------ DIRTY LAYER ------------------------
 
@@ -24,7 +24,6 @@ let gameState = {
   ],
   finalScore: 0,
   winningPlayer: 'nobody',
-  winningColour: null,
   redPlayerName: null,
   yellowPlayerName: null,
   highScores: []
@@ -33,17 +32,15 @@ let gameState = {
 // gridClick is called every time a user clicks on the board
 // eslint-disable-next-line no-unused-vars
 async function gridClick (e) {
-  gameState = await takeTurn(e, gameState)
+  gameState = takeTurn(e, gameState)
 
   if (gameState.winner != null) { // i.e. someone has won
     if (gameState.winner === 'Red') {
       gameState.redPlayerName = document.getElementById('red-input').value
       gameState.winningPlayer = gameState.redPlayerName
-      gameState.winningColour = 'Red'
     } else if (gameState.winner === 'Yellow') {
       gameState.yellowPlayerName = document.getElementById('yellow-input').value
       gameState.winningPlayer = gameState.yellowPlayerName
-      gameState.winningColour = 'Yellow'
     }
     await sendScore(gameState)
     gameState.highScores = await getHighScores()
@@ -62,7 +59,7 @@ async function sendScore (state) {
   if (state.winner === 'nobody') {
     return
   }
-  const data = { player: state.winningPlayer, score: state.finalScore, colour: state.winningColour }
+  const data = { player: state.winningPlayer, score: state.finalScore, colour: state.winner }
   await fetch('http://localhost:3000/scores', {
     method: 'POST',
     headers: {
@@ -80,7 +77,7 @@ async function getHighScores () {
 
 // ------------------------ PURE FUNCTIONS ------------------------
 
-async function takeTurn (e, state) {
+function takeTurn (e, state) {
   const newState = JSON.parse(JSON.stringify(state))
 
   const id = e.target.id
@@ -159,7 +156,7 @@ function checkWinner (state) {
 
 function checkRows (state) {
   for (let i = 0; i < 6; i++) {
-    for (let j = 0; j < 7; j++) {
+    for (let j = 0; j < 4; j++) {
       if (state.board[i][j] != null) {
         if (state.board[i][j] === state.board[i][j + 1] &&
                     state.board[i][j] === state.board[i][j + 2] &&
@@ -173,13 +170,13 @@ function checkRows (state) {
 }
 
 function checkColumns (state) {
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 6; j++) {
-      if (state.board[j][i] != null) {
-        if (state.board[j][i] === state.board[j - 1][i] &&
-                    state.board[j][i] === state.board[j - 2][i] &&
-                    state.board[j][i] === state.board[j - 3][i]) {
-          return state.board[j][i]
+      if (state.board[i][j] != null) {
+        if (state.board[i][j] === state.board[i + 1][j] &&
+                    state.board[i][j] === state.board[i + 2][j] &&
+                    state.board[i][j] === state.board[i + 3][j]) {
+          return state.board[i][j]
         }
       }
     }
@@ -188,12 +185,12 @@ function checkColumns (state) {
 }
 
 function checkDiagonals (state) {
-  for (let i = 0; i < 6; i++) {
-    for (let j = 0; j < 7; j++) {
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 4; j++) {
       if (state.board[i][j] != null) {
-        if (state.board[i][j] === state.board[i - 1][j + 1] &&
-                      state.board[i][j] === state.board[i - 2][j + 2] &&
-                      state.board[i][j] === state.board[i - 3][j + 3]) {
+        if (state.board[i][j] === state.board[i + 1][j + 1] &&
+                      state.board[i][j] === state.board[i + 2][j + 2] &&
+                      state.board[i][j] === state.board[i + 3][j + 3]) {
           return state.board[i][j]
         }
       }
@@ -203,12 +200,12 @@ function checkDiagonals (state) {
 }
 
 function checkCounterDiagonals (state) {
-  for (let i = 0; i < 6; i++) {
-    for (let j = 0; j < 7; j++) {
+  for (let i = 0; i < 3; i++) {
+    for (let j = 6; j > 2; j--) {
       if (state.board[i][j] != null) {
-        if (state.board[i][j] === state.board[i - 1][j - 1] &&
-                        state.board[i][j] === state.board[i - 2][j - 2] &&
-                        state.board[i][j] === state.board[i - 3][j - 3]) {
+        if (state.board[i][j] === state.board[i + 1][j - 1] &&
+                        state.board[i][j] === state.board[i + 2][j - 2] &&
+                        state.board[i][j] === state.board[i + 3][j - 3]) {
           return state.board[i][j]
         }
       }
@@ -217,7 +214,7 @@ function checkCounterDiagonals (state) {
   return null
 }
 
-// ------------------------ UI FUNCTIONS ------------------------
+// ------------------------ UI FUNCTIONS (PRETTY DIRTY) ------------------------
 
 // Could use getElementsByClass('col').forEach()
 function drawBoard (state) {
@@ -230,12 +227,11 @@ function drawBoard (state) {
       document.getElementById(`row${rowIndex}-col${columnIndex}`).style.backgroundColor = cellColour
     }
   }
-
-  if (state.winner === null) {
-    displayTurn(state.player)
+  if (gameState.winner === null) {
+    displayTurn(gameState.player)
   } else {
-    displayWinner(state)
-    displayScores(state)
+    displayWinner(gameState)
+    displayScores(gameState)
   }
 }
 
@@ -255,7 +251,7 @@ function displayWinner (state) {
   document.getElementById('currentTurn').style.display = 'none'
   document.getElementById('winner-name').innerText = state.winningPlayer
   document.getElementById('winner-display').style.display = 'block'
-  if (state.winningColour === 'Red') {
+  if (state.winner === 'Red') {
     document.getElementById('winner-display').style.backgroundColor = 'rgba(255, 0, 0, 0.3)'
   } else {
     document.getElementById('winner-display').style.backgroundColor = 'rgba(255, 204, 0, 0.3)'
@@ -266,7 +262,6 @@ function displayScores (state) {
   document.getElementById('scoreboard').classList.remove('invisible')
   document.getElementById('scoreboard').classList.add('visible')
   for (let i = 0; i < state.highScores.length; i++) {
-    console.log('in scoreboard for loop')
     document.getElementById(`score${i + 1}`).innerText = state.highScores[i].player + ' (' + state.highScores[i].colour + '): ' + state.highScores[i].score
   }
 }
@@ -274,3 +269,5 @@ function displayScores (state) {
 function displayTurn (player) {
   document.getElementById('currentTurn').innerText = `${player}'s turn`
 }
+
+module.exports = { takeTurn, checkWinner }
