@@ -3,9 +3,9 @@
 // TODO:
 // Improve UI (gradient colour board? place elements horizontally)
 // Merge send and get scores
-// Have to add scores by same players?
+// Change takeTurn to take in id and not an event
 
-// module.exports = { takeTurn, checkWinner }
+const { Connect4AI } = require('connect4-ai')
 
 // ------------------------ DIRTY LAYER ------------------------
 
@@ -26,7 +26,9 @@ let gameState = {
   winningPlayer: 'nobody',
   redPlayerName: null,
   yellowPlayerName: null,
-  highScores: []
+  highScores: [],
+  game: new Connect4AI(),
+  humanMoves: []
 }
 
 // gridClick is called every time a user clicks on the board
@@ -103,6 +105,7 @@ function takeTurn (e, state) {
   return newState
 }
 
+// Try findIndex
 function getLowestFreeRowInColumn (colNumber, grid) {
   for (let i = 5; i >= 0; i--) {
     if (grid[i][colNumber] === null) {
@@ -130,6 +133,8 @@ function reset (state) {
   newState.finalScore = 0
   newState.winningPlayer = 'nobody'
   newState.winningColour = null
+  newState.game = new Connect4AI()
+  newState.humanMoves = []
 
   return newState
 }

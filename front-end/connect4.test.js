@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const connect4 = require('./connect4.js')
 
 let gameState
@@ -23,7 +24,7 @@ beforeEach(() => {
   }
 })
 
-describe ('When calling the checkWinner function', () => {
+describe('When calling the checkWinner function', () => {
   const wins = [
     [[
       [null, null, null, null, null, null, null],
@@ -118,7 +119,7 @@ describe ('When calling the checkWinner function', () => {
   })
 })
 
-describe ('When calling takeTurn function', () => {
+describe('When calling takeTurn function', () => {
   // Have to test when a piece can be placed and when it can't (i.e. the column is full)
 
   test('When there is space in a column, the piece falls in the lowest available spot in that column', () => {
