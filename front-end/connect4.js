@@ -1,11 +1,6 @@
 // TODO:
 // Improve UI (gradient colour board? place elements horizontally)
 
-// AI TODO:
-// Keep track of human moves
-
-const { Connect4AI } = require('connect4-ai')
-
 // ------------------------ DIRTY LAYER ------------------------
 
 // gameState object
@@ -25,9 +20,7 @@ let gameState = {
   winningPlayer: 'nobody',
   redPlayerName: null,
   yellowPlayerName: null,
-  highScores: [],
-  game: new Connect4AI(),
-  humanMoves: []
+  highScores: []
 }
 
 // gridClick is called every time a user clicks on the board
@@ -36,15 +29,7 @@ async function gridClick (e) {
   const id = e.target.id
   const column = id[8]
 
-  const returnedTurn = takeTurn(gameState, column)
-
-  gameState = returnedTurn[0]
-
-  const move = returnedTurn[1]
-
-  if (move) {
-    gameState.humanMoves.push(move)
-  }
+  gameState = takeTurn(gameState, column)
 
   if (gameState.winner != null) { // i.e. someone has won
     if (gameState.winner === 'Red') {
@@ -58,20 +43,6 @@ async function gridClick (e) {
     gameState.highScores = await getHighScores()
   }
   drawBoard(gameState)
-}
-
-async function winnerChecks(state) {
-  if (state.winner != null) { // i.e. someone has won
-    if (state.winner === 'Red') {
-      state.redPlayerName = document.getElementById('red-input').value
-      state.winningPlayer = state.redPlayerName
-    } else if (state.winner === 'Yellow') {
-      state.yellowPlayerName = document.getElementById('yellow-input').value
-      state.winningPlayer = state.yellowPlayerName
-    }
-    await sendScore(state)
-    state.highScores = await getHighScores()
-  }
 }
 
 // resetGame is called when a user clicks on the reset button
@@ -108,11 +79,8 @@ function takeTurn (state, col) {
 
   const lowestFreeRow = getLowestFreeRowInColumn(col, newState.board)
 
-  let moveMade = false
-
   if (lowestFreeRow !== null && newState.winner == null && newState.turn < 43) {
     newState.turn++
-    moveMade = col + 1
 
     if (newState.player === 'Red') {
       newState.board[lowestFreeRow][col] = 'Red'
@@ -127,7 +95,7 @@ function takeTurn (state, col) {
   if (newState.winner != null) {
     newState.finalScore = 42 - newState.turn
   }
-  return [newState, moveMade]
+  return newState
 }
 
 // Try findIndex
@@ -158,8 +126,6 @@ function reset (state) {
   newState.finalScore = 0
   newState.winningPlayer = 'nobody'
   newState.winningColour = null
-  newState.game = new Connect4AI()
-  newState.humanMoves = []
 
   return newState
 }
@@ -300,4 +266,4 @@ function displayTurn (player) {
   document.getElementById('currentTurn').innerText = `${player}'s turn`
 }
 
-module.exports = { takeTurn, checkWinner }
+// module.exports = { takeTurn, checkWinner }
