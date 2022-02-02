@@ -2,11 +2,14 @@
 // Improve UI (gradient colour board? place elements horizontally)
 
 // AI TODO:
+// New branch for AI player
 // Keep track of human moves
 
 const { Connect4AI } = require('connect4-ai')
 
 // ------------------------ DIRTY LAYER ------------------------
+
+// let game = new Connect4AI()
 
 // gameState object
 let gameState = {
@@ -24,7 +27,6 @@ let gameState = {
   finalScore: 0,
   winningPlayer: 'nobody',
   redPlayerName: null,
-  yellowPlayerName: null,
   highScores: [],
   game: new Connect4AI(),
   humanMoves: []
@@ -36,6 +38,7 @@ async function gridClick (e) {
   const id = e.target.id
   const column = id[8]
 
+  console.log(gameState)
   const returnedTurn = takeTurn(gameState, column)
 
   gameState = returnedTurn[0]
@@ -52,27 +55,37 @@ async function gridClick (e) {
       gameState.winningPlayer = gameState.redPlayerName
     } else if (gameState.winner === 'Yellow') {
       gameState.yellowPlayerName = document.getElementById('yellow-input').value
-      gameState.winningPlayer = gameState.yellowPlayerName
+      gameState.winningPlayer = 'Robot'
     }
     await sendScore(gameState)
     gameState.highScores = await getHighScores()
   }
   drawBoard(gameState)
+
+  gameState.humanMoves.forEach(humanPlay => {
+    handlePlay(() => gameState.game.play(humanPlay))
+    handlePlay(() => gameState.game.playAI('hard')) // or 'easy' or 'medium'
+  })
 }
 
-async function winnerChecks(state) {
-  if (state.winner != null) { // i.e. someone has won
-    if (state.winner === 'Red') {
-      state.redPlayerName = document.getElementById('red-input').value
-      state.winningPlayer = state.redPlayerName
-    } else if (state.winner === 'Yellow') {
-      state.yellowPlayerName = document.getElementById('yellow-input').value
-      state.winningPlayer = state.yellowPlayerName
-    }
-    await sendScore(state)
-    state.highScores = await getHighScores()
-  }
+function handlePlay (playFunction) {
+  if (gameState.winner != null) return
+  playFunction()
 }
+
+// async function winnerChecks(state) {
+//   if (state.winner != null) { // i.e. someone has won
+//     if (state.winner === 'Red') {
+//       state.redPlayerName = document.getElementById('red-input').value
+//       state.winningPlayer = state.redPlayerName
+//     } else if (state.winner === 'Yellow') {
+//       state.yellowPlayerName = document.getElementById('yellow-input').value
+//       state.winningPlayer = state.yellowPlayerName
+//     }
+//     await sendScore(state)
+//     state.highScores = await getHighScores()
+//   }
+// }
 
 // resetGame is called when a user clicks on the reset button
 // eslint-disable-next-line no-unused-vars
@@ -158,7 +171,7 @@ function reset (state) {
   newState.finalScore = 0
   newState.winningPlayer = 'nobody'
   newState.winningColour = null
-  newState.game = new Connect4AI()
+  // newState.game = new Connect4AI()
   newState.humanMoves = []
 
   return newState
