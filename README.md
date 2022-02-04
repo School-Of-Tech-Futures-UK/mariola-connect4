@@ -14,4 +14,15 @@ This project requires Express.js and Node.js.
 
 ### Running the Game
 
-To run the game you must start the server by using "node index.js".
+To run the game you must first clone this repository. Then, within the /connect4 directory install required dependencies using npm:
+
+```console
+$ npm install
+```
+
+Then change to the /back-end directory and start the server:
+
+```console
+$ cd ./back-end
+$ node index.js
+```
