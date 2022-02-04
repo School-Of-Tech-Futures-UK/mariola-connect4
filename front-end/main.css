@@ -1,4 +1,56 @@
-#grid{
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.input-group {
+    border-style: solid;
+    border-width: thick;
+}
+
+.input-group-text {
+    width: 120px;
+    font-weight: bold;
+}
+
+#turn-marker {
+    background-color: red;
+    border-radius: 50%;
+    border: 2px black solid;
+    width: 40px;
+    height: 40px;
+}
+
+img{
+    max-width: 50%;
+    height: auto;
+}
+
+h1 {
+    display: block;
+    font-family: sans-serif;
+    font-size: 2em;
+    margin-block-start: 0.67em;
+    margin-block-end: 0.67em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    font-weight: bold;
+}
+
+#currentTurn {
+    display: flex;
+    justify-content: center;
+    font-weight: bold;
+}
+
+#grid {
     margin: 20px auto;
     display: table;
     width: 300px;
@@ -6,7 +58,7 @@
     padding: 10px;
     background: blue;
     border-radius: 5px;
-  }
+}
 
 .col {
     width: 10px;
@@ -39,8 +91,51 @@
     color: white;
 }
 
-body {
+
+#winner-modal-content {
+    background-color: white;
+    width: fit-content;
+    height: fit-content;
+    /* width: 200px;
+    height: 100px; */
+    /* position: fixed; */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    /* left: calc(50% - 100px);
+    top: calc(50% - 50px); */
+    border: 3px solid black;
+    box-sizing: border-box;
+}
+
+#winner-modal-message {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 2rem;
+    font-weight: bold;
+    padding: 20px;
+}
+
+#winner-modal {
+    content: '';
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.4);
+    display: flex;
+    justify-content: center;
+}
+
+#scoreboard {
     text-align: center;
+}
+
+#winner-modal.hidden {
+    display: none;
 }
 
 #reset-button {

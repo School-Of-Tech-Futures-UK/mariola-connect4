@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
     <head>
         <title>Connect 4</title>
@@ -10,29 +10,57 @@
 
     <body>
 
-        <h1>Connect 4</h1>
+        <img id="headerTitle" src= "./c4 title.png" alt="Page Title: Connect 4"></img><br>
 
         <script src="./connect4.js"></script>
 
-        <div class="crad">
-            <p id="winner-display" style="color: black;">The winner is <span id="winner-name"></span></p>
-            <div class="card-body">
-                <div class="input-group mb-3">
-                    <span class="input-group-text" id="basic-addon1" style="color: red; background-color: rgba(255, 0, 0, 0.1);;">Red Player</span>
+        <div class="container">
+
+        <div id="player-info">
+            <div>
+                <div class="input-group mb-3 rounded" style="border-style: solid; border-color: red;">
+                    <span class="input-group-text">Red Player</span>
                     <input type="text" class="form-control" placeholder="" aria-label="Username" aria-describedby="basic-addon1" id="red-input">
                 </div>
-                <div class="input-group mb-3">
-                    <span class="input-group-text" id="basic-addon1" style="color: rgb(255, 204, 0); background-color: rgba(255, 204, 0, 0.1);">Yellow Player</span>
+                <div class="input-group mb-3 rounded" style="border-style: solid; border-color: #ffc107;">
+                    <span class="input-group-text">Yellow Player</span>
                     <input type="text" class="form-control" placeholder="" aria-label="Username" aria-describedby="basic-addon1" id="yellow-input">
                 </div>
-                <!-- <p id="nameRed"><strong>Red Player:</strong></p><br/>
-                <p id="nameYellow"><strong>Yellow Player:</strong></p><br/> -->
-                <p id="currentTurn">Red's turn</p>
+                <div id="turn-div" style="display: flex; justify-content: space-evenly; align-items: center;">
+                    <div id="currentTurn">Red Player's Turn</div>
+                    <span id="turn-marker"></span>
+                </div>
+               
+                
             </div>
         </div>
-               
 
-            <div id="grid">
+        <div id="winner-modal" class="hidden">
+            <div id="winner-modal-content">
+                <div id="winner-modal-message">The winner is <span id="winner-colour"></span>: <span id="winner-name"></span>!</div>
+                <div id="scoreboard" style="width: 18rem;">
+                    <div>
+                        <h4>High Scores</h4>
+                        <p id="score1"></p>
+                        <p id="score2"></p>
+                        <p id="score3"></p>
+                        <p id="score4"></p>
+                        <p id="score5"></p>
+                        <p id="score6"></p>
+                        <p id="score7"></p>
+                        <p id="score8"></p>
+                        <p id="score9"></p>
+                        <p id="score10"></p>
+                    </div>
+                </div>
+                <button onclick="resetGame();" id="play-again-button">Play again</button><br/>
+            </div>
+        </div>
+
+        </div>
+
+        <div class="container">
+        <div id="grid">
                 <div class="row">
                     <div class="col" id="row0-col0" onClick="gridClick(event);"></div>
                     <div class="col" id="row0-col1" onClick="gridClick(event);"></div>
@@ -87,28 +115,9 @@
                     <div class="col" id="row5-col5" onClick="gridClick(event);"></div>
                     <div class="col" id="row5-col6" onClick="gridClick(event);"></div>
                 </div>
-
-            </div>
-
-            <div class="card invisible" id="scoreboard" style="width: 18rem;">
-                <div class="card-body">
-                  <h4 class="card-title">High Scores</h5>
-                  <h5 class="card-subtitle mb-2 text-muted">All Time High Scores</h6>
-                  <p class="card-text" id="score1"></p>
-                  <p class="card-text" id="score2"></p>
-                  <p class="card-text" id="score3"></p>
-                  <p class="card-text" id="score4"></p>
-                  <p class="card-text" id="score5"></p>
-                  <p class="card-text" id="score6"></p>
-                  <p class="card-text" id="score7"></p>
-                  <p class="card-text" id="score8"></p>
-                  <p class="card-text" id="score9"></p>
-                  <p class="card-text" id="score10"></p>
-                </div>
-            </div>
-
-            <button onclick="resetGame();" id="reset-button">Reset</button><br/>
-    
-        </body>
+        </div>
+        </div>
+        <button onclick="resetGame();" id="reset-button">Reset</button><br/>
+    </body>
 
 </html>

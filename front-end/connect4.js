@@ -1,5 +1,4 @@
-// TODO:
-// Improve UI (gradient colour board? place elements horizontally)
+// This file contains the functions to perform Connect 4 game logic and change the UI accordingly.
 
 // ------------------------ DIRTY LAYER ------------------------
 
@@ -98,14 +97,12 @@ function takeTurn (state, col) {
   return newState
 }
 
-// Try findIndex
 function getLowestFreeRowInColumn (colNumber, grid) {
   for (let i = 5; i >= 0; i--) {
     if (grid[i][colNumber] === null) {
       return i
     }
   }
-  return null
 }
 
 // eslint-disable-next-line no-unused-vars
@@ -125,7 +122,6 @@ function reset (state) {
   newState.winner = null
   newState.finalScore = 0
   newState.winningPlayer = 'nobody'
-  newState.winningColour = null
 
   return newState
 }
@@ -212,14 +208,13 @@ function checkCounterDiagonals (state) {
 
 // ------------------------ UI FUNCTIONS (PRETTY DIRTY) ------------------------
 
-// Could use getElementsByClass('col').forEach()
 function drawBoard (state) {
   for (let rowIndex = 0; rowIndex < 6; rowIndex++) {
     for (let columnIndex = 0; columnIndex < 7; columnIndex++) {
       if (!state.board[rowIndex][columnIndex]) {
         continue
       }
-      const cellColour = state.board[rowIndex][columnIndex] === 'Red' ? 'red' : 'yellow'
+      const cellColour = state.board[rowIndex][columnIndex] === 'Red' ? 'red' : '#ffc107'
       document.getElementById(`row${rowIndex}-col${columnIndex}`).style.backgroundColor = cellColour
     }
   }
@@ -237,33 +232,27 @@ function clearBoard () {
       document.getElementById(`row${rowIndex}-col${columnIndex}`).style.backgroundColor = 'white'
     }
   }
-  document.getElementById('winner-display').style.display = 'none'
-  document.getElementById('scoreboard').classList.remove('visible')
-  document.getElementById('scoreboard').classList.add('invisible')
-  document.getElementById('currentTurn').style.display = 'block'
+  document.getElementById('winner-modal').classList.add('hidden')
+  document.getElementById('currentTurn').style.display = 'flex'
 }
 
 function displayWinner (state) {
   document.getElementById('currentTurn').style.display = 'none'
   document.getElementById('winner-name').innerText = state.winningPlayer
-  document.getElementById('winner-display').style.display = 'block'
-  if (state.winner === 'Red') {
-    document.getElementById('winner-display').style.backgroundColor = 'rgba(255, 0, 0, 0.3)'
-  } else {
-    document.getElementById('winner-display').style.backgroundColor = 'rgba(255, 204, 0, 0.3)'
-  }
+  document.getElementById('winner-colour').innerText = state.winner
 }
 
 function displayScores (state) {
-  document.getElementById('scoreboard').classList.remove('invisible')
-  document.getElementById('scoreboard').classList.add('visible')
+  document.getElementById('winner-modal').classList.remove('hidden')
   for (let i = 0; i < state.highScores.length; i++) {
     document.getElementById(`score${i + 1}`).innerText = state.highScores[i].player + ' (' + state.highScores[i].colour + '): ' + state.highScores[i].score
   }
 }
 
 function displayTurn (player) {
-  document.getElementById('currentTurn').innerText = `${player}'s turn`
+  const colour = player === 'Red' ? 'red' : '#ffc107'
+  document.getElementById('turn-marker').style.backgroundColor = colour
+  document.getElementById('currentTurn').innerText = `${player} Player's Turn`
 }
 
 // module.exports = { takeTurn, checkWinner }
